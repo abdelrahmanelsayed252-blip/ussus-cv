@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CV عاملات أسس الإنجاز</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@700&display=swap">
+<style>
+/* Layout: tool page — live CV preview beside (desktop) or above (phone) a short RTL form, brand navy + green */
+:root{
+  --bg:#EDF2F7; --surface:#FFFFFF; --surface-2:#F5F8FB; --ink:#0B2240; --muted:#5B6C80; --line:#D5DFE9;
+  --brand:#01274A; --brand-ink:#FFFFFF; --accent:#1AA86E; --accent-ink:#FFFFFF; --warn:#B4541A; --focus:#1AA86E;
+  --ui:"IBM Plex Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#08131F; --surface:#0F1E2F; --surface-2:#132639; --ink:#E5EDF5; --muted:#93A5B9; --line:#223A52;
+  --brand:#0B3560; --brand-ink:#FFFFFF; --accent:#23BE7E; --accent-ink:#04140C; --warn:#F0965A; --focus:#3FD495; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#08131F; --surface:#0F1E2F; --surface-2:#132639; --ink:#E5EDF5; --muted:#93A5B9; --line:#223A52;
+  --brand:#0B3560; --brand-ink:#FFFFFF; --accent:#23BE7E; --accent-ink:#04140C; --warn:#F0965A; --focus:#3FD495; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.6}
+.wrap{direction:rtl;max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:1.35rem;margin:0;font-weight:700;text-wrap:balance}
+header p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:22px;align-items:start}
+.preview{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:12px;min-width:0}
+.stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px}
+canvas#cv{display:block;width:100%;height:auto;border-radius:6px;touch-action:none;cursor:grab}
+canvas#cv.drag{cursor:grabbing}
+.hint{font-size:.82rem;color:var(--muted);margin:0;text-align:center}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1 1 200px;font-size:1.02rem;padding:12px 16px}
+.btn.small{padding:6px 12px;font-size:.88rem;font-weight:500}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+form{display:flex;flex-direction:column;gap:16px;min-width:0}
+fieldset{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);margin:0;padding:16px;display:grid;gap:12px;min-width:0}
+legend{font-weight:700;padding:0 6px;font-size:.98rem}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:5px;font-size:.88rem;color:var(--muted);font-weight:500;min-width:0}
+input[type=text],input[type=number],textarea,select{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:70px;line-height:1.5}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);outline:none}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;background:var(--surface-2);cursor:pointer;color:var(--muted)}
+.drop.over{border-color:var(--accent);color:var(--ink)}
+.drop strong{color:var(--ink);display:block;font-size:1rem}
+.drop input{display:none}
+.range{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;font-size:.88rem;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.status{font-size:.86rem;color:var(--muted);min-height:1.2em;margin:0}
+.status.err{color:var(--warn)}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.note{font-size:.82rem;color:var(--muted);margin:0}
+.toggle{display:flex;flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:.9rem}
+.toggle input{accent-color:var(--accent);width:18px;height:18px}
+.step legend{display:flex;align-items:center;gap:8px}
+.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:.85rem;font-weight:700}
+#msg{min-height:150px;font-size:.98rem;unicode-bidi:plaintext}
+.found{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.found li{font-size:.82rem;border-radius:999px;padding:2px 10px;background:var(--surface-2);border:1px solid var(--line)}
+.found li.miss{border-color:var(--warn);color:var(--warn)}
+details#manual{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style-position:inside}
+.manual-body{display:flex;flex-direction:column;gap:12px;padding:0 12px 12px}
+.manual-body fieldset{background:var(--surface-2)}
+.manual-body input[type=text],.manual-body input[type=number],.manual-body textarea{background:var(--surface)}
+#saveBox{position:fixed;inset:0;background:rgba(3,12,22,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 16px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 16px) max(16px,env(safe-area-inset-left,0px));z-index:20;direction:rtl}
+#saveBox img{max-height:72vh;max-width:100%;border-radius:8px;background:#fff}
+#saveBox p{color:#fff;margin:0;text-align:center;font-weight:600}
+@media (max-width:860px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .preview{position:static;order:-1;max-width:520px;width:100%;margin:0 auto}
+}
+@media (max-width:420px){.row{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.bar>i{transition:none}}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>CV عاملات أسس الإنجاز</h1>
+      <p>الصق رسالة العاملة وارفع صورتها، والـ CV بتطلع جاهزة بتصميم الشركة.</p>
+    </div>
+    <button class="btn small" type="button" id="resetBtn">CV جديدة (تفريغ الخانات)</button>
+  </header>
+
+  <div class="grid">
+    <form id="f" autocomplete="off">
+      <fieldset class="step">
+        <legend><span class="num">1</span> الصق رسالة العاملة</legend>
+        <textarea id="msg" rows="7" dir="auto" placeholder="NAME: SELINA&#10;Age:28&#10;Muslim&#10;New&#10;Clean baby help cooking&#10;Nationality:Bangladesh&#10;Salary:900"></textarea>
+        <p class="status" id="msgStatus" aria-live="polite">الصق الرسالة زي ما جاتلك، والبيانات هتتملي لوحدها.</p>
+      </fieldset>
+
+      <fieldset class="step">
+        <legend><span class="num">2</span> ارفع صورة العاملة</legend>
+        <label class="drop" id="drop" for="photo">
+          <strong>اضغط هنا وارفع الصورة</strong>
+          <span>أو اسحبها هنا، أو الصقها بـ Ctrl+V · الخلفية بتتشال لوحدها</span>
+          <input type="file" id="photo" accept="image/*">
+        </label>
+        <div class="bar" id="bgBar" hidden><i></i></div>
+        <p class="status" id="bgStatus" aria-live="polite"></p>
+        <div class="range"><span>تكبير</span><input type="range" id="zoom" min="40" max="250" value="100"><span id="zoomVal">100%</span></div>
+        <div class="actions">
+          <button class="btn small" type="button" id="bgBtn">✂️ شيل الخلفية تاني</button>
+          <button class="btn small" type="button" id="undoBg" hidden>رجّع الصورة بخلفيتها</button>
+        </div>
+        <label class="toggle"><input type="checkbox" id="fade"> تنعيم أطراف الصورة (للصور اللي بخلفيتها)</label>
+      </fieldset>
+
+      <details id="manual">
+        <summary>تعديل البيانات يدوي</summary>
+        <div class="manual-body">
+      <fieldset>
+        <legend>المعلومات الشخصية</legend>
+        <label>الاسم<input type="text" id="name" placeholder="مثال: CATHERINE"></label>
+        <div class="row">
+          <label>العمر<input type="number" id="age" inputmode="numeric" min="18" max="70"></label>
+          <label>الديانة<input type="text" id="religion" list="relList"></label>
+        </div>
+        <label>الجنسية<input type="text" id="nationality" list="natList" placeholder="اكتب أو اختار"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>الخبرة</legend>
+        <label>اكتبها في سطر أو سطرين<textarea id="exp" rows="2"></textarea></label>
+        <div class="chips" id="expChips">
+          <button type="button" class="chip" data-v="بدون خبرة">بدون خبرة</button>
+          <button type="button" class="chip" data-v="خبرة سنة&#10;في السعودية">سنة في السعودية</button>
+          <button type="button" class="chip" data-v="خبرة سنتين&#10;في السعودية">سنتين في السعودية</button>
+          <button type="button" class="chip" data-v="خبرة 3 سنوات&#10;في السعودية">3 سنين في السعودية</button>
+          <button type="button" class="chip" data-v="خبرة سابقة&#10;في الخليج">خبرة في الخليج</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>المهارات <span class="note">(لحد 4)</span></legend>
+        <div class="chips" id="skillChips"></div>
+        <label>مهارة تانية مش موجودة؟
+          <div style="display:flex;gap:8px"><input type="text" id="skillNew" placeholder="مثال: الكوي"><button class="btn small" type="button" id="skillAdd">إضافة</button></div>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>تفاصيل أخرى</legend>
+        <div class="row">
+          <label>المهنة<input type="text" id="job" list="jobList"></label>
+          <label>الراتب (ريال) — اختياري<input type="text" id="salary" inputmode="numeric"></label>
+        </div>
+      </fieldset>
+        </div>
+      </details>
+    </form>
+
+    <aside class="preview">
+      <div class="stage"><canvas id="cv" width="1122" height="1402" aria-label="معاينة الـ CV"></canvas></div>
+      <p class="hint" id="hint">بيانات مثال — غيّرها وارفع صورة العاملة</p>
+      <div class="actions">
+        <button class="btn primary" type="button" id="dlBtn">⬇ تحميل الصورة</button>
+        <button class="btn" type="button" id="copyBtn">نسخ</button>
+      </div>
+      <p class="status" id="dlStatus" aria-live="polite"></p>
+    </aside>
+  </div>
+</div>
+
+<div id="saveBox" hidden>
+  <img id="saveImg" alt="الـ CV الجاهزة">
+  <p>اضغط مطوّل على الصورة (أو كليك يمين) واختار حفظ الصورة</p>
+  <button class="btn" type="button" id="saveClose">رجوع</button>
+</div>
+
+<datalist id="relList"><option value="مسلمة"><option value="غير مسلمة"><option value="مسيحية"></datalist>
+<datalist id="natList">
+  <option value="كينيا"><option value="أوغندا"><option value="الفلبين"><option value="إندونيسيا"><option value="سريلانكا"><option value="بنغلاديش"><option value="إثيوبيا"><option value="الهند"><option value="بوروندي"><option value="نيبال"><option value="غانا"><option value="تنزانيا"><option value="سيراليون"><option value="رواندا">
+</datalist>
+<datalist id="jobList"><option value="عاملة منزلية"><option value="مربية أطفال"><option value="طباخة"><option value="ممرضة منزلية"><option value="عاملة نظافة"></datalist>
+
+<script>
+(() => {
+  const W = 1122, H = 1402;
+  const FONT = "Tajawal";
+  // Template geometry (px in the 1122×1402 design)
+  const PHOTO = { x0: 505, x1: 985, y0: 252, y1: 838, r: 44 };
+  const NAVY = "#01274A";
+  const SKILLS = ["التنظيف", "رعاية الأطفال", "الطبخ", "رعاية كبار السن", "الغسيل والكوي", "ترتيب المنزل"];
+
+  const $ = id => document.getElementById(id);
+  const cv = $("cv"), ctx = cv.getContext("2d");
+  const fields = ["name", "age", "religion", "nationality", "exp", "job", "salary"];
+
+  const EXAMPLE = { name: "CATHERINE", age: "28", religion: "غير مسلمة", nationality: "كينيا",
+    exp: "خبرة سنتين\nفي السعودية", job: "عاملة منزلية", salary: "1000", skills: ["التنظيف", "رعاية الأطفال", "الطبخ"] };
+
+  const state = { skills: [...EXAMPLE.skills], extraSkills: [], photo: null, original: null, isCutout: true,
+    zoom: 1, dx: 0, dy: 0, isExample: true };
+
+  let template = null, fontsReady = false;
+
+  // ---------- helpers ----------
+  const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+  const val = id => $(id).value.trim();
+  const toWestern = s => s.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+
+  function fitFont(text, size, maxW, weight = 700) {
+    let s = size;
+    do { ctx.font = `${weight} ${s}px ${FONT}, Tahoma, sans-serif`; if (ctx.measureText(text).width <= maxW) break; s -= 1; } while (s > 12);
+    return s;
+  }
+  function textR(text, xRight, baseline, size, maxW) {
+    if (!text) return;
+    fitFont(text, size, maxW);
+    ctx.textAlign = "right"; ctx.direction = "rtl"; ctx.fillText(text, xRight, baseline);
+  }
+  function wrapLines(text, size, maxW) {
+    const raw = text.split(/\n+/).map(s => s.trim()).filter(Boolean);
+    ctx.font = `700 ${size}px ${FONT}, Tahoma, sans-serif`;
+    const out = [];
+    for (const line of raw) {
+      if (ctx.measureText(line).width <= maxW) { out.push(line); continue; }
+      let cur = "";
+      for (const w of line.split(/\s+/)) {
+        const t = cur ? cur + " " + w : w;
+        if (ctx.measureText(t).width > maxW && cur) { out.push(cur); cur = w; } else cur = t;
+      }
+      if (cur) out.push(cur);
+    }
+    return out;
+  }
+  function hasAlpha(img) {
+    const c = document.createElement("canvas"); const s = 64; c.width = s; c.height = s;
+    const x = c.getContext("2d"); x.drawImage(img, 0, 0, s, s);
+    const d = x.getImageData(0, 0, s, s).data; let n = 0;
+    for (let i = 3; i < d.length; i += 4) if (d[i] < 200) n++;
+    return n > s * s * 0.03;
+  }
+  function downscale(img, max = 1400) {
+    const k = Math.min(1, max / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round((img.naturalWidth || img.width) * k); c.height = Math.round((img.naturalHeight || img.height) * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return c;
+  }
+
+  // ---------- drawing ----------
+  // Where the photo sits by default: {s: scale, left, top} in design px
+  function placeFor(img) {
+    const w = img.width, h = img.height, bw = PHOTO.x1 - PHOTO.x0;
+    if (img === state.sampleImg) return { s: 1, left: PHOTO.x0, top: 262 };
+    const box = state.isCutout ? alphaBox(img) : null;
+    if (box) {
+      // a cut-out person: head near the card top, shoulders filling the photo area (like the original)
+      const pw = box.x1 - box.x0, ph = box.y1 - box.y0;
+      let k = 500 / pw;
+      if (ph * k < 575) k = 575 / ph;
+      if (ph * k > 760) k = 760 / ph;
+      return { s: k, left: 745 - (box.x0 + pw / 2) * k, top: 278 - box.y0 * k };
+    }
+    const k = Math.max(bw / w, (PHOTO.y1 - PHOTO.y0) / h);
+    return { s: k, left: 745 - (w * k) / 2, top: PHOTO.y0 };
+  }
+  function alphaBox(img) {
+    const n = 160, k = n / Math.max(img.width, img.height);
+    const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+    const x = c.getContext("2d"); x.drawImage(img, 0, 0, c.width, c.height);
+    const d = x.getImageData(0, 0, c.width, c.height).data;
+    let x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
+    for (let y = 0; y < c.height; y++) for (let xx = 0; xx < c.width; xx++) {
+      if (d[(y * c.width + xx) * 4 + 3] > 140) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    }
+    if (x1 < 0) return null;
+    return { x0: x0 / k, y0: y0 / k, x1: (x1 + 1) / k, y1: (y1 + 1) / k };
+  }
+  function setPhoto(img) {
+    state.photo = img; state.place = img ? placeFor(img) : null;
+    state.zoom = 1; state.dx = 0; state.dy = 0; $("zoom").value = 100; $("zoomVal").textContent = "100%";
+  }
+  function drawPhoto() {
+    const img = state.photo; if (!img) return;
+    const P = state.place || (state.place = placeFor(img));
+    const w0 = img.width * P.s, w = w0 * state.zoom, h = img.height * P.s * state.zoom;
+    const left = P.left + state.dx - (w - w0) / 2;
+    const top = P.top + state.dy;
+    ctx.save();
+    ctx.beginPath();
+    const { x0, x1, y0, y1, r } = PHOTO;
+    ctx.moveTo(x0, y0); ctx.lineTo(x1 - r, y0); ctx.arcTo(x1, y0, x1, y0 + r, r); ctx.lineTo(x1, y1); ctx.lineTo(x0, y1); ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(img, left, top, w, h);
+    // bottom fade into the card
+    let g = ctx.createLinearGradient(0, y1 - 130, 0, y1);
+    g.addColorStop(0, "rgba(1,39,74,0)"); g.addColorStop(1, "rgba(1,39,74,1)");
+    ctx.fillStyle = g; ctx.fillRect(x0, y1 - 130, x1 - x0, 130);
+    if ($("fade").checked) {
+      g = ctx.createLinearGradient(x0, 0, x0 + 70, 0);
+      g.addColorStop(0, "rgba(1,39,74,1)"); g.addColorStop(1, "rgba(1,39,74,0)");
+      ctx.fillStyle = g; ctx.fillRect(x0, y0, 70, y1 - y0);
+      g = ctx.createLinearGradient(x1, 0, x1 - 50, 0);
+      g.addColorStop(0, "rgba(1,39,74,1)"); g.addColorStop(1, "rgba(1,39,74,0)");
+      ctx.fillStyle = g; ctx.fillRect(x1 - 50, y0, 50, y1 - y0);
+      g = ctx.createLinearGradient(0, y0, 0, y0 + 40);
+      g.addColorStop(0, "rgba(1,39,74,1)"); g.addColorStop(1, "rgba(1,39,74,0)");
+      ctx.fillStyle = g; ctx.fillRect(x0, y0, x1 - x0, 40);
+    }
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (template) ctx.drawImage(template, 0, 0, W, H); else { ctx.fillStyle = NAVY; ctx.fillRect(0, 0, W, H); }
+    drawPhoto();
+    ctx.fillStyle = "#FFFFFF"; ctx.textBaseline = "alphabetic";
+
+    // experience — centered, up to 3 lines
+    const expText = val("exp");
+    if (expText) {
+      let size = 31, lines = wrapLines(expText, size, 290);
+      while (lines.length > 3 && size > 20) { size -= 2; lines = wrapLines(expText, size, 290); }
+      lines = lines.slice(0, 3);
+      const gap = size * 1.45, mid = 460.5;
+      const first = mid - (lines.length - 1) * gap / 2 + size * 0.24;
+      ctx.textAlign = "center"; ctx.direction = "rtl";
+      lines.forEach((l, i) => { fitFont(l, size, 296); ctx.fillText(l, 330, first + i * gap); });
+    }
+
+    // skills — bullets
+    const sk = state.skills.slice(0, 4);
+    if (sk.length) {
+      const gap = sk.length === 4 ? 44 : 55, mid = 746;
+      const first = mid - (sk.length - 1) * gap / 2;
+      sk.forEach((s, i) => {
+        const b = first + i * gap;
+        ctx.beginPath(); ctx.arc(457, b - 3, 11, 0, Math.PI * 2); ctx.fillStyle = "#FFFFFF"; ctx.fill();
+        textR(s, 426, b + 1, sk.length === 4 ? 25 : 27, 236);
+      });
+    }
+
+    // other details
+    const sal = toWestern(val("salary"));
+    if (sal) {
+      textR(val("job"), 370, 988, 28.5, 186);
+      textR(/ريال/.test(sal) ? sal : `${sal} ريال`, 372, 1045, 28.5, 186);
+    } else if (template) {
+      // no salary: hide the «الراتب» label and center the job line in its box
+      ctx.drawImage(template, 176, 1080, 308, 25, 176, 944, 308, 134);
+      ctx.drawImage(template, 376, 962, 110, 40, 376, 991, 110, 40);
+      ctx.fillStyle = "#FFFFFF";
+      textR(val("job"), 370, 1017, 28.5, 186);
+    }
+
+    // personal info
+    const name = val("name");
+    const latin = /^[\x00-\x7F]*$/.test(name);
+    textR(latin ? name.toUpperCase() : name, 769, 954, latin ? 31 : 28, 226);
+    textR(toWestern(val("age")), 769, 1007, 29, 226);
+    textR(val("religion"), 769, 1060, 28, 226);
+    textR(val("nationality"), 769, 1113, 28, 226);
+  }
+
+  // ---------- skills chips ----------
+  function renderChips() {
+    const box = $("skillChips"); box.textContent = "";
+    [...SKILLS, ...state.extraSkills].forEach(s => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "chip" + (state.skills.includes(s) ? " on" : "");
+      const idx = state.skills.indexOf(s);
+      b.textContent = (idx >= 0 ? (idx + 1) + ". " : "") + s;
+      b.setAttribute("aria-pressed", idx >= 0);
+      b.onclick = () => {
+        const i = state.skills.indexOf(s);
+        if (i >= 0) state.skills.splice(i, 1);
+        else if (state.skills.length < 4) state.skills.push(s);
+        else { flash($("dlStatus"), "أقصى عدد 4 مهارات — شيل واحدة الأول", true); return; }
+        renderChips(); draw();
+      };
+      box.appendChild(b);
+    });
+  }
+  $("skillAdd").onclick = () => {
+    const v = val("skillNew"); if (!v) return;
+    if (![...SKILLS, ...state.extraSkills].includes(v)) state.extraSkills.push(v);
+    if (!state.skills.includes(v) && state.skills.length < 4) state.skills.push(v);
+    $("skillNew").value = ""; renderChips(); draw();
+  };
+  $("skillNew").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("skillAdd").click(); } });
+  $("expChips").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    $("exp").value = b.dataset.v; draw();
+  });
+
+  // ---------- form ----------
+  $("f").addEventListener("submit", e => e.preventDefault());
+  $("f").addEventListener("input", e => { if (e.target.type !== "file" && e.target.type !== "range") { markEdited(); draw(); } });
+  $("fade").addEventListener("change", draw);
+  $("zoom").addEventListener("input", () => { state.zoom = $("zoom").value / 100; $("zoomVal").textContent = $("zoom").value + "%"; draw(); });
+
+  function markEdited() { $("hint").textContent = state.photo === state.sampleImg ? "لسه صورة المثال — ارفع صورة العاملة" : (state.photo ? "حرّك الصورة بإيدك لو محتاجة تظبيط" : "ارفع صورة العاملة"); }
+
+  function fill(d) {
+    fields.forEach(k => $(k).value = d[k] ?? "");
+    state.skills = [...(d.skills || [])];
+    renderChips();
+  }
+  $("resetBtn").onclick = () => {
+    fill({ job: "عاملة منزلية", skills: [] });
+    try { const saved = JSON.parse(localStorage.getItem("cvDefaults") || "{}"); if (saved.salary) $("salary").value = saved.salary; if (saved.job) $("job").value = saved.job; } catch {}
+    setPhoto(null); state.original = null; state.isExample = false; $("msg").value = ""; showFound(null);
+    $("undoBg").hidden = true; $("hint").textContent = "ارفع صورة العاملة"; $("photo").value = "";
+    draw();
+  };
+
+
+  // ---------- read the worker message ----------
+  const NAT = [[/bangla|bengal/i, "بنغلاديش"], [/kenya/i, "كينيا"], [/uganda/i, "أوغندا"], [/philip|filip|pilip/i, "الفلبين"],
+    [/indonesia/i, "إندونيسيا"], [/sri\s*lank|srilank/i, "سريلانكا"], [/ethiop/i, "إثيوبيا"], [/\bindia/i, "الهند"], [/burundi/i, "بوروندي"],
+    [/nepal/i, "نيبال"], [/ghana/i, "غانا"], [/tanzan/i, "تنزانيا"], [/sierra/i, "سيراليون"], [/rwanda/i, "رواندا"], [/pakistan/i, "باكستان"],
+    [/sudan/i, "السودان"], [/nigeria/i, "نيجيريا"], [/myanmar|burma/i, "ميانمار"], [/vietnam/i, "فيتنام"], [/thai/i, "تايلاند"],
+    [/egypt/i, "مصر"], [/eritrea/i, "إريتريا"], [/somali/i, "الصومال"], [/madagas/i, "مدغشقر"], [/malawi/i, "مالاوي"], [/zambia/i, "زامبيا"],
+    [/cameroon/i, "الكاميرون"], [/morocc/i, "المغرب"], [/tunis/i, "تونس"], [/gambia/i, "غامبيا"], [/liberia/i, "ليبيريا"], [/zimbab/i, "زيمبابوي"],
+    [/bangladesh|بنجلاديش|بنغلاديش|بنغلادش/, "بنغلاديش"], [/كيني/, "كينيا"], [/اوغند|أوغند/, "أوغندا"], [/فلبين/, "الفلبين"], [/اندونيس|إندونيس/, "إندونيسيا"],
+    [/سيريلانك|سريلانك/, "سريلانكا"], [/اثيوب|إثيوب/, "إثيوبيا"], [/هند/, "الهند"], [/بوروند/, "بوروندي"], [/نيبال/, "نيبال"]];
+  const SKILL_RX = [[/clean|house\s*keep|house\s*work|تنظيف|نظافة/i, "التنظيف"],
+    [/bab(y|ies|e)|child|kid|nanny|sitter|أطفال|اطفال|الطفل/i, "رعاية الأطفال"],
+    [/co+c?k|kook|طبخ|طباخ/i, "الطبخ"],
+    [/elder|old\s*(people|age|man|woman|lady)|senior|patient|كبار\s*السن|مسن/i, "رعاية كبار السن"],
+    [/wash|iron|laundr|غسيل|كوي/i, "الغسيل والكوي"],
+    [/arrang|organi[sz]|ترتيب/i, "ترتيب المنزل"]];
+  const PLACES = [[/saudi|ksa|riyadh|jedd?ah|dammam|mecca|makkah|madinah|السعودي|الرياض|جدة/i, "في السعودية"], [/kuwait|الكويت/i, "في الكويت"],
+    [/uae|dubai|emirat|abu\s*dhabi|sharjah|الامارات|الإمارات|دبي/i, "في الإمارات"], [/qatar|doha|قطر/i, "في قطر"], [/oman|muscat|سلطنة عمان/i, "في عمان"],
+    [/bahrain|البحرين/i, "في البحرين"], [/jordan|الأردن|الاردن/i, "في الأردن"], [/leban|لبنان/i, "في لبنان"], [/gulf|الخليج/i, "في الخليج"]];
+  const yearsAr = n => n === 1 ? "سنة" : n === 2 ? "سنتين" : (n >= 3 && n <= 10 && Number.isInteger(n)) ? `${n} سنوات` : `${n} سنة`;
+
+  function parseMessage(text) {
+    const t = toWestern(text).replace(/\r/g, "");
+    const lines = t.split(/\n+/).map(l => l.trim()).filter(Boolean);
+    const out = { skills: [] };
+    const KEY = /^\s*(name|full\s*name|age|nationality|national|country|salary|sal|religion|experience|exp|ex|job|position|profession|الاسم|اسم|العمر|السن|الجنسية|الجنسيه|الراتب|راتب|الديانة|الديانه|الخبرة|الخبره|المهنة|المهنه|الوظيفة)(?=[\s:：=\-–]|$)\s*[:：=\-–]?\s*(.*)$/i;
+    const rest = [];
+    for (const line of lines) {
+      const m = line.match(KEY);
+      if (!m || !m[2]) { rest.push(line); continue; }
+      const k = m[1].toLowerCase(), v = m[2].trim();
+      if (/name|اسم/.test(k)) out.name = v.replace(/[*_]/g, "").trim();
+      else if (/age|العمر|السن/.test(k)) out.age = (v.match(/\d{2}/) || [])[0];
+      else if (/nation|country|الجنسي/.test(k)) out.nationality = v;
+      else if (/sal|راتب/.test(k)) out.salary = (v.match(/\d[\d,.]*/) || [""])[0].replace(/,/g, "");
+      else if (/relig|ديان/.test(k)) out.religionRaw = v;
+      else if (/exp|^ex$|خبر/.test(k)) out.expRaw = v;
+      else if (/job|position|profession|مهن|وظيف/.test(k)) out.job = v;
+    }
+    const all = lines.join("\n");
+    // religion
+    const rel = out.religionRaw || all;
+    if (/non[\s\-_]*musl|not\s*musl|christ|غير\s*مسلم|مسيحي/i.test(rel)) out.religion = "غير مسلمة";
+    else if (/musl|moslem|مسلم/i.test(rel)) out.religion = "مسلمة";
+    // nationality
+    const natSrc = out.nationality || all;
+    const nat = NAT.find(([rx]) => rx.test(natSrc));
+    if (nat) out.nationality = nat[1];
+    // experience
+    const expLine = out.expRaw || rest.find(l => /\bnew\b|no\s*exp|fresh|first\s*time|\bex\b|exp|worked|year|yrs|جديد|خبر|بدون/i.test(l) && !/^\s*age/i.test(l)) || "";
+    if (expLine) {
+      if (/\bnew\b|no\s*exp|fresh|first\s*time|جديد|بدون\s*خبر|لا\s*يوجد/i.test(expLine)) out.exp = "جديدة\nبدون خبرة سابقة";
+      else {
+        const y = expLine.match(/(\d+(?:\.\d+)?)\s*(y|yr|yrs|year|years|سن|عام)/i);
+        const place = PLACES.find(([rx]) => rx.test(expLine));
+        const first = y ? `خبرة ${yearsAr(Number(y[1]))}` : "خبرة سابقة";
+        out.exp = place ? `${first}\n${place[1]}` : first;
+      }
+    }
+    // skills: keep the order they were written in
+    const skSrc = rest.filter(l => l !== expLine).join(" ") + " " + (out.skillsRaw || "");
+    const hits = SKILL_RX.map(([rx, ar]) => { const m = skSrc.match(rx); return m ? [m.index, ar] : null; }).filter(Boolean).sort((a, b) => a[0] - b[0]);
+    out.skills = hits.map(h => h[1]).slice(0, 4);
+    // job
+    if (!out.job) {
+      if (/driver|سائق/i.test(all)) out.job = "سائق خاص";
+      else if (/nurse|ممرض/i.test(all)) out.job = "ممرضة منزلية";
+      else out.job = "عاملة منزلية";
+    }
+    // fallbacks for messages without labels
+    if (!out.name) { const l = rest.find(l => /^[A-Za-z][A-Za-z .'\-]{1,40}$/.test(l) && !/musl|christ|new|clean|bab|cook|coc|wash|iron|salary|exp/i.test(l) && !NAT.some(([rx]) => rx.test(l))); if (l) out.name = l; }
+    if (!out.age) { const m = all.match(/\b(1[89]|[2-5]\d)\s*(y\/?o|yrs?\s*old|years?\s*old|سنة|عام)/i); if (m) out.age = m[1]; }
+    if (!out.salary) { const m = all.match(/(\d{3,4})\s*(sr|sar|riyal|rial|ريال|ر\.?س)/i); if (m) out.salary = m[1]; }
+    return out;
+  }
+  function showFound(r) {
+    const st = $("msgStatus");
+    if (!r) { st.className = "status"; st.textContent = "الصق الرسالة زي ما جاتلك، والبيانات هتتملي لوحدها."; return; }
+    const items = [["الاسم", r.name], ["العمر", r.age], ["الديانة", r.religion], ["الجنسية", r.nationality], ["الخبرة", r.exp], ["المهارات", r.skills.length ? r.skills.join("، ") : ""], ];
+    st.className = "status"; st.textContent = "";
+    const ul = document.createElement("ul"); ul.className = "found";
+    items.forEach(([k, v]) => { const li = document.createElement("li"); li.textContent = v ? `✓ ${k}` : `✗ ${k} مش لاقيه`; if (!v) li.className = "miss"; ul.appendChild(li); });
+    st.appendChild(ul);
+    { const li = document.createElement("li"); li.textContent = r.salary ? "✓ الراتب" : "بدون راتب (هيتشال من التصميم)"; ul.appendChild(li); }
+    if (items.some(i => !i[1])) { const p = document.createElement("span"); p.textContent = "اللي ناقص اكتبه من «تعديل البيانات يدوي» تحت."; st.appendChild(p); }
+  }
+  let msgTimer = null;
+  $("msg").addEventListener("input", e => {
+    e.stopPropagation();
+    clearTimeout(msgTimer);
+    msgTimer = setTimeout(() => {
+      const txt = $("msg").value.trim();
+      if (!txt) { showFound(null); return; }
+      const r = parseMessage(txt);
+      state.isExample = false;
+      $("name").value = r.name || ""; $("age").value = r.age || ""; $("religion").value = r.religion || "";
+      $("nationality").value = r.nationality || ""; $("exp").value = r.exp || ""; $("job").value = r.job || "عاملة منزلية";
+      $("salary").value = r.salary || "";
+      state.skills = r.skills; renderChips();
+      if (state.photo === state.sampleImg) { setPhoto(null); $("hint").textContent = "فاضل صورة العاملة"; }
+      showFound(r); draw();
+    }, 250);
+  });
+
+  // ---------- photo upload ----------
+  async function usePhoto(file) {
+    if (!file || !/^image\//.test(file.type)) { flash($("bgStatus"), "الملف ده مش صورة — ارفع JPG أو PNG", true); return; }
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await loadImg(url);
+      const c = downscale(img);
+      state.original = c; state.isExample = false;
+      state.isCutout = hasAlpha(c);
+      $("fade").checked = !state.isCutout;
+      setPhoto(c);
+      $("undoBg").hidden = true;
+      $("hint").textContent = "حرّك الصورة بإيدك لو محتاجة تظبيط";
+      draw();
+      if (state.isCutout) flash($("bgStatus"), "الصورة مقصوصة جاهزة ✓");
+      else removeBg();
+    } catch { flash($("bgStatus"), "مش قادر أفتح الصورة دي — جرّب صورة تانية", true); }
+    finally { URL.revokeObjectURL(url); }
+  }
+  $("photo").addEventListener("change", e => usePhoto(e.target.files[0]));
+  const drop = $("drop");
+  ["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", e => usePhoto(e.dataTransfer.files[0]));
+  document.addEventListener("paste", e => { const f = [...(e.clipboardData?.files || [])].find(f => /^image\//.test(f.type)); if (f) usePhoto(f); });
+
+  // drag to move photo
+  let drag = null;
+  cv.addEventListener("pointerdown", e => {
+    if (!state.photo) return;
+    const k = W / cv.getBoundingClientRect().width;
+    drag = { x: e.clientX, y: e.clientY, dx: state.dx, dy: state.dy, k };
+    cv.setPointerCapture(e.pointerId); cv.classList.add("drag");
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!drag) return;
+    state.dx = drag.dx + (e.clientX - drag.x) * drag.k; state.dy = drag.dy + (e.clientY - drag.y) * drag.k;
+    requestAnimationFrame(draw);
+  });
+  const endDrag = () => { drag = null; cv.classList.remove("drag"); };
+  cv.addEventListener("pointerup", endDrag); cv.addEventListener("pointercancel", endDrag);
+  cv.addEventListener("wheel", e => {
+    if (!state.photo) return; e.preventDefault();
+    const z = Math.min(250, Math.max(40, Number($("zoom").value) - Math.sign(e.deltaY) * 4));
+    $("zoom").value = z; $("zoom").dispatchEvent(new Event("input"));
+  }, { passive: false });
+
+  // ---------- background removal (runs in the browser) ----------
+  let bgLib = null;
+  function loadBgLib() {
+    if (bgLib) return bgLib;
+    bgLib = new Promise((res, rej) => {
+      const s = document.createElement("script"); s.src = "bg/bgremove.js";
+      s.onload = () => window.imglyRemoveBackground ? res(window.imglyRemoveBackground) : rej(new Error("lib"));
+      s.onerror = () => { bgLib = null; rej(new Error("load")); };
+      document.head.appendChild(s);
+    });
+    return bgLib;
+  }
+  // Keep only the person: drop stray specks the model leaves on plain walls
+  function cleanMask(c) {
+    const k = 256 / Math.max(c.width, c.height), lw = Math.max(1, Math.round(c.width * k)), lh = Math.max(1, Math.round(c.height * k));
+    const lo = document.createElement("canvas"); lo.width = lw; lo.height = lh;
+    const lx = lo.getContext("2d"); lx.drawImage(c, 0, 0, lw, lh);
+    const d0 = lx.getImageData(0, 0, lw, lh).data, n = lw * lh;
+    // erode first so specks touching the person by a thin bridge come loose
+    let bin = new Uint8Array(n); for (let i = 0; i < n; i++) bin[i] = d0[i * 4 + 3] > 128 ? 1 : 0;
+    for (let r = 0; r < 3; r++) { const b2 = bin.slice(); for (let i = 0; i < n; i++) if (bin[i]) { const x = i % lw, y = (i / lw) | 0;
+      if (x === 0 || y === 0 || x === lw - 1 || !bin[i - 1] || !bin[i + 1] || !bin[i - lw] || (y < lh - 1 && !bin[i + lw])) b2[i] = 0; } bin = b2; }
+    const lab = new Int32Array(n).fill(-1); let best = -1, bestSize = 0, id = 0; const stack = [];
+    for (let i = 0; i < n; i++) {
+      if (lab[i] !== -1 || !bin[i]) continue;
+      let size = 0; lab[i] = id; stack.push(i);
+      while (stack.length) {
+        const j = stack.pop(); size++; const x = j % lw, y = (j / lw) | 0;
+        const nb = [x > 0 ? j - 1 : -1, x < lw - 1 ? j + 1 : -1, y > 0 ? j - lw : -1, y < lh - 1 ? j + lw : -1];
+        for (const q of nb) if (q >= 0 && lab[q] === -1 && bin[q]) { lab[q] = id; stack.push(q); }
+      }
+      if (size > bestSize) { bestSize = size; best = id; }
+      id++;
+    }
+    if (best < 0) return;
+    let gate = new Uint8Array(n); for (let i = 0; i < n; i++) gate[i] = lab[i] === best ? 1 : 0;
+    // fill holes enclosed by the person (flood the outside from the borders)
+    const outside = new Uint8Array(n); const st = [];
+    for (let x = 0; x < lw; x++) { st.push(x, (lh - 1) * lw + x); } for (let y = 0; y < lh; y++) { st.push(y * lw, y * lw + lw - 1); }
+    while (st.length) { const j = st.pop(); if (outside[j] || gate[j]) continue; outside[j] = 1; const x = j % lw, y = (j / lw) | 0;
+      if (x > 0) st.push(j - 1); if (x < lw - 1) st.push(j + 1); if (y > 0) st.push(j - lw); if (y < lh - 1) st.push(j + lw); }
+    for (let i = 0; i < n; i++) if (!outside[i]) gate[i] = 1;
+    for (let r = 0; r < 5; r++) { const g2 = gate.slice(); for (let i = 0; i < n; i++) if (!gate[i]) { const x = i % lw, y = (i / lw) | 0;
+      if ((x > 0 && gate[i - 1]) || (x < lw - 1 && gate[i + 1]) || (y > 0 && gate[i - lw]) || (y < lh - 1 && gate[i + lw])) g2[i] = 1; } gate = g2; }
+    const img = lx.createImageData(lw, lh);
+    for (let i = 0; i < n; i++) { img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = 255; img.data[i * 4 + 3] = gate[i] ? 255 : 0; }
+    lx.clearRect(0, 0, lw, lh); lx.putImageData(img, 0, 0);
+    const cx = c.getContext("2d"); cx.save(); cx.globalCompositeOperation = "destination-in"; cx.imageSmoothingQuality = "high";
+    cx.drawImage(lo, 0, 0, c.width, c.height); cx.restore();
+  }
+  let bgBusy = false;
+  $("bgBtn").onclick = () => removeBg();
+  async function removeBg() {
+    if (bgBusy) return;
+    if (!state.original) { flash($("bgStatus"), "ارفع صورة العاملة الأول", true); return; }
+    bgBusy = true;
+    const src = state.original;
+    const btn = $("bgBtn"), bar = $("bgBar"), st = $("bgStatus");
+    btn.disabled = true; bar.hidden = false; bar.firstElementChild.style.width = "3%";
+    st.className = "status"; st.textContent = "بيجهّز أداة إزالة الخلفية… أول مرة بتاخد دقيقة (حوالي 100 ميجا، وبعد كده بتبقى أسرع)";
+    try {
+      const remove = await loadBgLib();
+      const blob = await new Promise(r => src.toBlob(r, "image/png"));
+      const parts = {};
+      const out = await remove(blob, {
+        publicPath: new URL("bg/", location.href).href,
+        model: "medium", device: "cpu", proxyToWorker: false,
+        output: { format: "image/png" },
+        progress: (key, cur, total) => {
+          parts[key] = total ? cur / total : 0;
+          const vals = Object.values(parts); const p = vals.reduce((a, b) => a + b, 0) / Math.max(2, vals.length);
+          bar.firstElementChild.style.width = Math.max(5, Math.min(95, p * 100)) + "%";
+          if (/compute|inference/.test(key)) st.textContent = "بيقص الصورة…";
+        }
+      });
+      const url = URL.createObjectURL(out);
+      const img = await loadImg(url);
+      const c = document.createElement("canvas"); c.width = img.width; c.height = img.height; c.getContext("2d").drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      cleanMask(c);
+      if (src !== state.original) return; // a newer photo was uploaded meanwhile
+      state.isCutout = true; $("fade").checked = false; $("undoBg").hidden = false;
+      setPhoto(c);
+      bar.firstElementChild.style.width = "100%";
+      st.textContent = "اتشالت الخلفية ✓ — الـ CV جاهزة"; draw();
+    } catch (err) {
+      console.error(err);
+      flash(st, "مقدرتش أشيل الخلفية على الجهاز ده، فنعّمت أطراف الصورة بدالها. لو عايزها أنضف ارفع صورة مقصوصة PNG.", true);
+    } finally { bgBusy = false; btn.disabled = false; setTimeout(() => bar.hidden = true, 800); }
+  }
+  $("undoBg").onclick = () => { state.isCutout = hasAlpha(state.original); $("fade").checked = !state.isCutout; setPhoto(state.original); $("undoBg").hidden = true; draw(); };
+
+  // ---------- export ----------
+  function flash(el, msg, err = false) { el.textContent = msg; el.className = "status" + (err ? " err" : ""); }
+  const fileName = () => "CV-" + (val("name") || "worker").replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "") + ".png";
+  const getBlob = () => new Promise(r => { draw(); cv.toBlob(r, "image/png"); });
+  function rememberDefaults() { try { localStorage.setItem("cvDefaults", JSON.stringify({ job: val("job"), salary: val("salary") })); } catch {} }
+  function showSaveBox() { draw(); $("saveImg").src = cv.toDataURL("image/png"); $("saveBox").hidden = false; }
+  $("saveClose").onclick = () => $("saveBox").hidden = true;
+
+  $("dlBtn").onclick = async () => {
+    if (state.photo === state.sampleImg) flash($("dlStatus"), "تنبيه: لسه صورة المثال — اتأكد إنك رفعت صورة العاملة", true);
+    rememberDefaults();
+    const blob = await getBlob();
+    let downloads = null;
+    try { downloads = await window.claude?.use?.("downloads"); } catch {}
+    if (!downloads) {
+      // regular website: a normal download link works here
+      try {
+        const u = URL.createObjectURL(blob), link = document.createElement("a");
+        link.href = u; link.download = fileName(); document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(u), 4000);
+        flash($("dlStatus"), "اتحملت ✓");
+      } catch { showSaveBox(); }
+      return;
+    }
+    try {
+      await downloads.save({ filename: fileName(), data: blob });
+      flash($("dlStatus"), "اتحفظت ✓");
+    } catch (e) {
+      if (e && e.code === "declined") flash($("dlStatus"), "التحميل اتلغى");
+      else if (e && e.code === "rate_limited") flash($("dlStatus"), "استنى ثانية وجرّب تاني", true);
+      else showSaveBox();
+    }
+  };
+  $("copyBtn").onclick = async () => {
+    try {
+      const blob = await getBlob();
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      flash($("dlStatus"), "اتنسخت ✓ — الصقها في واتساب على طول");
+    } catch { showSaveBox(); }
+  };
+
+  // ---------- boot ----------
+  fill(EXAMPLE);
+  draw();
+  Promise.all([
+    loadImg("template.jpg").then(i => template = i).catch(() => {}),
+    loadImg("sample.jpg").then(i => { state.sampleImg = i; if (state.isExample) setPhoto(i); draw(); }).catch(() => {}),
+    document.fonts.load(`700 30px ${FONT}`, "عربي").then(() => document.fonts.load(`700 30px ${FONT}`, "ABC123")).catch(() => {})
+  ]).then(() => { fontsReady = true; draw(); });
+  document.fonts.ready.then(draw);
+})();
+</script>
+
+</body>
+</html>
