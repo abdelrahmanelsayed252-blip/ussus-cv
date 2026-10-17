@@ -214,7 +214,9 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
   let template = null, fontsReady = false;
 
   // ---------- helpers ----------
-  const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+  // Assets live next to the page, or on GitHub when the page is hosted elsewhere
+  const ASSET = window.ASSET_BASE || "";
+  const loadImg = src => new Promise((res, rej) => { const i = new Image(); if (/^https?:/.test(src)) i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = rej; i.src = src; });
   const val = id => $(id).value.trim();
   const toWestern = s => s.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
 
@@ -580,10 +582,16 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
   function loadBgLib() {
     if (bgLib) return bgLib;
     bgLib = new Promise((res, rej) => {
-      const s = document.createElement("script"); s.src = "bg/bgremove.js";
-      s.onload = () => window.imglyRemoveBackground ? res(window.imglyRemoveBackground) : rej(new Error("lib"));
-      s.onerror = () => { bgLib = null; rej(new Error("load")); };
-      document.head.appendChild(s);
+      const add = src => {
+        const s = document.createElement("script"); s.src = src;
+        s.onload = () => window.imglyRemoveBackground ? res(window.imglyRemoveBackground) : rej(new Error("lib"));
+        s.onerror = () => { bgLib = null; rej(new Error("load")); };
+        document.head.appendChild(s);
+      };
+      if (!ASSET) add("bg/bgremove.js");
+      else fetch(ASSET + "bg/bgremove.js").then(r => { if (!r.ok) throw 0; return r.text(); })
+        .then(t => add(URL.createObjectURL(new Blob([t], { type: "text/javascript" }))))
+        .catch(() => { bgLib = null; rej(new Error("load")); });
     });
     return bgLib;
   }
@@ -640,7 +648,7 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
       const blob = await new Promise(r => src.toBlob(r, "image/png"));
       const parts = {};
       const out = await remove(blob, {
-        publicPath: new URL("bg/", location.href).href,
+        publicPath: ASSET ? ASSET + "bg/" : new URL("bg/", location.href).href,
         model: "medium", device: "cpu", proxyToWorker: false,
         output: { format: "image/png" },
         progress: (key, cur, total) => {
@@ -712,8 +720,8 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
   fill(EXAMPLE);
   draw();
   Promise.all([
-    loadImg("template.jpg").then(i => template = i).catch(() => {}),
-    loadImg("sample.jpg").then(i => { state.sampleImg = i; if (state.isExample) setPhoto(i); draw(); }).catch(() => {}),
+    loadImg(ASSET + "template.jpg").then(i => template = i).catch(() => {}),
+    loadImg(ASSET + "sample.jpg").then(i => { state.sampleImg = i; if (state.isExample) setPhoto(i); draw(); }).catch(() => {}),
     document.fonts.load(`700 30px ${FONT}`, "عربي").then(() => document.fonts.load(`700 30px ${FONT}`, "ABC123")).catch(() => {})
   ]).then(() => { fontsReady = true; draw(); });
   document.fonts.ready.then(draw);
