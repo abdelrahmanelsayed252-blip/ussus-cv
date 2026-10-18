@@ -332,9 +332,9 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
     // experience — centered, up to 3 lines
     const expText = val("exp");
     if (expText) {
+      // as many lines as needed; shrink until they fit the box
       let size = 31, lines = wrapLines(expText, size, 290);
-      while (lines.length > 3 && size > 20) { size -= 2; lines = wrapLines(expText, size, 290); }
-      lines = lines.slice(0, 3);
+      while ((lines.length - 1) * size * 1.45 + size > 136 && size > 15) { size -= 1; lines = wrapLines(expText, size, 290); }
       const gap = size * 1.45, mid = 460.5;
       const first = mid - (lines.length - 1) * gap / 2 + size * 0.24;
       ctx.textAlign = "center"; ctx.direction = "rtl";
@@ -442,10 +442,52 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
     [/elder|old\s*(people|age|man|woman|lady)|senior|patient|كبار\s*السن|مسن/i, "رعاية كبار السن"],
     [/wash|iron|laundr|غسيل|كوي/i, "الغسيل والكوي"],
     [/arrang|organi[sz]|ترتيب/i, "ترتيب المنزل"]];
-  const PLACES = [[/saudi|ksa|riyadh|jedd?ah|dammam|mecca|makkah|madinah|السعودي|الرياض|جدة/i, "في السعودية"], [/kuwait|الكويت/i, "في الكويت"],
-    [/uae|dubai|emirat|abu\s*dhabi|sharjah|الامارات|الإمارات|دبي/i, "في الإمارات"], [/qatar|doha|قطر/i, "في قطر"], [/oman|muscat|سلطنة عمان/i, "في عمان"],
-    [/bahrain|البحرين/i, "في البحرين"], [/jordan|الأردن|الاردن/i, "في الأردن"], [/leban|لبنان/i, "في لبنان"], [/gulf|الخليج/i, "في الخليج"]];
+  const PLACES = [[/dubai|دبي/i, "في دبي"], [/abu\s*dhabi|ابوظبي|أبوظبي|ابو\s*ظبي|أبو\s*ظبي/i, "في أبوظبي"],
+    [/saudi|\bksa\b|riyadh|jedd?ah|dammam|mecca|makkah|madinah|السعودي|الرياض|جدة|جده|الدمام|مكة/i, "في السعودية"],
+    [/kuwait|الكويت|كويت/i, "في الكويت"], [/\buae\b|emirat|sharjah|الامارات|الإمارات|الشارقة/i, "في الإمارات"],
+    [/qatar|doha|قطر|الدوحة/i, "في قطر"], [/\boman\b|muscat|سلطنة\s*عمان|مسقط|(?<![\u0600-\u06FF])عمان(?![\u0600-\u06FF])/i, "في عمان"], [/bahrain|البحرين/i, "في البحرين"],
+    [/jordan|الأردن|الاردن|الادرن|الأدرن/i, "في الأردن"], [/leban|لبنان/i, "في لبنان"], [/malaysia|ماليزيا/i, "في ماليزيا"],
+    [/singapore|سنغافورة/i, "في سنغافورة"], [/hong\s*kong|هونج\s*كونج|هونغ\s*كونغ/i, "في هونج كونج"], [/cyprus|قبرص/i, "في قبرص"],
+    [/iraq|العراق/i, "في العراق"], [/gulf|الخليج/i, "في الخليج"]];
   const yearsAr = n => n === 1 ? "سنة" : n === 2 ? "سنتين" : (n >= 3 && n <= 10 && Number.isInteger(n)) ? `${n} سنوات` : `${n} سنة`;
+  const placeHit = l => PLACES.some(([rx]) => rx.test(l));
+  const AR_NUM = "(سنتين|سنتان|عامين|عامان|ثلاثة|ثلاث|أربعة|اربعة|أربع|اربع|خمسة|خمس|ستة|ست|سبعة|سبع|ثمانية|ثمان|تسعة|تسع|عشرة|عشر|سنة|سنه|عام)";
+  const arVal = w => /سنت|عام[يا]ن/.test(w) ? 2 : /ثلاث/.test(w) ? 3 : /ربع/.test(w) ? 4 : /خمس/.test(w) ? 5 : /^ست/.test(w) ? 6 : /سبع/.test(w) ? 7 : /ثمان/.test(w) ? 8 : /تسع/.test(w) ? 9 : /عشر/.test(w) ? 10 : 1;
+  // Every (years, place) pair in the text, in the order written:
+  // "سنتين في السعودية و3 في الأردن و2 في دبي" / "Saudi 2 years, Jordan 3, Dubai 2"
+  function expEntries(src) {
+    const s = toWestern(src), toks = [];
+    const add = (i, len, t) => { if (!toks.some(o => i < o.i + o.len && o.i < i + len)) toks.push({ i, len, ...t }); };
+    for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?|y(?![a-z])|سنوات|سنين|سنة|سنه|عام|اعوام|أعوام)?/gi)) add(m.index, m[0].length, { n: Number(m[1]) });
+    for (const m of s.matchAll(new RegExp(`(?<![\\u0600-\\u06FF])و?${AR_NUM}(?:\\s*(?:سنوات|سنين|اعوام|أعوام))?(?![\\u0600-\\u06FF])`, "g"))) add(m.index, m[0].length, { n: arVal(m[1]) });
+    for (const [rx, ar] of PLACES) for (const m of s.matchAll(new RegExp(rx.source, "gi"))) add(m.index, m[0].length, { p: ar });
+    toks.sort((a, b) => a.i - b.i);
+    const kept = [];
+    for (const t of toks) {
+      const prev = kept[kept.length - 1];
+      // "Dubai, UAE" or "الرياض السعودية" is one place
+      if (t.p && prev && prev.p && /^[\s,،\-–()]*$/.test(s.slice(prev.i + prev.len, t.i))) continue;
+      kept.push(t);
+    }
+    if (!kept.length) return [];
+    const numFirst = kept[0].n !== undefined, out = [];
+    let cur = null;
+    for (const t of kept) {
+      const isNum = t.n !== undefined;
+      if (cur && isNum !== numFirst && (isNum ? cur.n === undefined : cur.p === undefined)) { isNum ? cur.n = t.n : cur.p = t.p; continue; }
+      if (cur) out.push(cur);
+      cur = isNum ? { n: t.n } : { p: t.p };
+    }
+    if (cur) out.push(cur);
+    return out.map(e => ({ years: e.n !== undefined ? yearsAr(e.n) : "", place: e.p || "" }));
+  }
+  const NEW_RX = /\bnew\b|no\s*exp|fresh|first\s*time|جديد|بدون\s*خبر|لا\s*يوجد|أول\s*مر|اول\s*مر/i;
+  function formatExp(src) {
+    const list = expEntries(src);
+    if (!list.length) return NEW_RX.test(src) ? "جديدة\nبدون خبرة سابقة" : "خبرة سابقة";
+    if (list.length === 1) { const e = list[0]; return e.years && e.place ? `خبرة ${e.years}\n${e.place}` : e.years ? `خبرة ${e.years}` : `خبرة سابقة\n${e.place}`; }
+    return list.map(e => e.years ? `${e.years}${e.place ? " " + e.place : ""}` : `خبرة ${e.place}`).join("\n");
+  }
 
   function parseMessage(text) {
     const t = toWestern(text).replace(/\r/g, "");
@@ -475,18 +517,13 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
     const nat = NAT.find(([rx]) => rx.test(natSrc));
     if (nat) out.nationality = nat[1];
     // experience
-    const expLine = out.expRaw || rest.find(l => /\bnew\b|no\s*exp|fresh|first\s*time|\bex\b|exp|worked|year|yrs|جديد|خبر|بدون/i.test(l) && !/^\s*age/i.test(l)) || "";
-    if (expLine) {
-      if (/\bnew\b|no\s*exp|fresh|first\s*time|جديد|بدون\s*خبر|لا\s*يوجد/i.test(expLine)) out.exp = "جديدة\nبدون خبرة سابقة";
-      else {
-        const y = expLine.match(/(\d+(?:\.\d+)?)\s*(y|yr|yrs|year|years|سن|عام)/i);
-        const place = PLACES.find(([rx]) => rx.test(expLine));
-        const first = y ? `خبرة ${yearsAr(Number(y[1]))}` : "خبرة سابقة";
-        out.exp = place ? `${first}\n${place[1]}` : first;
-      }
-    }
+    const EXP_HINT = /\bex\b|exp|worked|year|yrs|\d\s*y\b|خبر|سنة|سنه|سنتين|سنتان|سنوات|سنين|عام|اعوام|أعوام/i;
+    const isAgeLine = l => /^\s*(1[89]|[2-5]\d)\s*(سنة|سنه|عام|years?\s*old|yrs?\s*old|y\/?o)\s*$/i.test(l);
+    const expLines = rest.filter(l => !isAgeLine(l) && !/^\s*age/i.test(l) && (EXP_HINT.test(l) || placeHit(l) || NEW_RX.test(l)));
+    const expSrc = [out.expRaw, ...expLines].filter(Boolean).join("\n");
+    if (expSrc) out.exp = formatExp(expSrc);
     // skills: keep the order they were written in
-    const skSrc = rest.filter(l => l !== expLine).join(" ") + " " + (out.skillsRaw || "");
+    const skSrc = rest.filter(l => !expLines.includes(l) || SKILL_RX.some(([rx]) => rx.test(l))).join(" ") + " " + (out.skillsRaw || "");
     const hits = SKILL_RX.map(([rx, ar]) => { const m = skSrc.match(rx); return m ? [m.index, ar] : null; }).filter(Boolean).sort((a, b) => a[0] - b[0]);
     out.skills = hits.map(h => h[1]).slice(0, 4);
     // job
