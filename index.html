@@ -427,9 +427,14 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
   };
 
 
+  // religion — negation first: None/Non/Not/No Muslim, غير/ليست/مش مسلمة, or another religion
+  const NOT_MUSLIM = /(?:\b(?:non|none|not|no|un)[\s\-_.]*(?:a\s+)?(?:musl|moslem|islam))|(?:غير|ليست|ليس|مش|مو|لا)\s*(?:مسلم|اسلام|إسلام)/i;
+  const OTHER_REL = /christ|catholic|protestant|orthodox|hindu|budd|sikh|مسيح|كاثوليك|بروتستان|ارثوذكس|أرثوذكس|هندوس|بوذ|سيخ/i;
+  const IS_MUSLIM = /musl|moslem|islam|مسلم|اسلام|إسلام/i;
+
   // ---------- read the worker message ----------
-  const NAT = [[/bangla|bengal/i, "بنغلاديش"], [/kenya/i, "كينيا"], [/uganda/i, "أوغندا"], [/philip|filip|pilip/i, "الفلبين"],
-    [/indonesia/i, "إندونيسيا"], [/sri\s*lank|srilank/i, "سريلانكا"], [/ethiop/i, "إثيوبيا"], [/\bindia/i, "الهند"], [/burundi/i, "بوروندي"],
+  const NAT = [[/bangla|bengal|bangal|بنغلاد|بنجلاد/i, "بنغلاديش"], [/ken[yi]a|كيني/i, "كينيا"], [/ugand|اوغند|أوغند|يوغند/i, "أوغندا"], [/phil+i?p|fil+ip|pilip|فلبين/i, "الفلبين"],
+    [/indon|اندونيس|إندونيس/i, "إندونيسيا"], [/sri\s*lan|srilan|سيريلانك|سريلانك|سيرلانك/i, "سريلانكا"], [/eth?i?op|اثيوب|إثيوب|حبش/i, "إثيوبيا"], [/\bindia/i, "الهند"], [/burundi/i, "بوروندي"],
     [/nepal/i, "نيبال"], [/ghana/i, "غانا"], [/tanzan/i, "تنزانيا"], [/sierra/i, "سيراليون"], [/rwanda/i, "رواندا"], [/pakistan/i, "باكستان"],
     [/sudan/i, "السودان"], [/nigeria/i, "نيجيريا"], [/myanmar|burma/i, "ميانمار"], [/vietnam/i, "فيتنام"], [/thai/i, "تايلاند"],
     [/egypt/i, "مصر"], [/eritrea/i, "إريتريا"], [/somali/i, "الصومال"], [/madagas/i, "مدغشقر"], [/malawi/i, "مالاوي"], [/zambia/i, "زامبيا"],
@@ -510,12 +515,13 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
     const all = lines.join("\n");
     // religion
     const rel = out.religionRaw || all;
-    if (/non[\s\-_]*musl|not\s*musl|christ|غير\s*مسلم|مسيحي/i.test(rel)) out.religion = "غير مسلمة";
-    else if (/musl|moslem|مسلم/i.test(rel)) out.religion = "مسلمة";
+    if (NOT_MUSLIM.test(rel) || OTHER_REL.test(rel)) out.religion = "غير مسلمة";
+    else if (IS_MUSLIM.test(rel)) out.religion = "مسلمة";
     // nationality
     const natSrc = out.nationality || all;
     const nat = NAT.find(([rx]) => rx.test(natSrc));
     if (nat) out.nationality = nat[1];
+    out.natKnown = !!nat;
     // experience
     const EXP_HINT = /\bex\b|exp|worked|year|yrs|\d\s*y\b|خبر|سنة|سنه|سنتين|سنتان|سنوات|سنين|عام|اعوام|أعوام/i;
     const isAgeLine = l => /^\s*(1[89]|[2-5]\d)\s*(سنة|سنه|عام|years?\s*old|yrs?\s*old|y\/?o)\s*$/i.test(l);
@@ -544,7 +550,12 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
     const items = [["الاسم", r.name], ["العمر", r.age], ["الديانة", r.religion], ["الجنسية", r.nationality], ["الخبرة", r.exp], ["المهارات", r.skills.length ? r.skills.join("، ") : ""], ];
     st.className = "status"; st.textContent = "";
     const ul = document.createElement("ul"); ul.className = "found";
-    items.forEach(([k, v]) => { const li = document.createElement("li"); li.textContent = v ? `✓ ${k}` : `✗ ${k} مش لاقيه`; if (!v) li.className = "miss"; ul.appendChild(li); });
+    items.forEach(([k, v]) => {
+      const li = document.createElement("li");
+      const odd = k === "الجنسية" && v && !r.natKnown; // spelled in a way we don't recognise
+      li.textContent = !v ? `✗ ${k} مش لاقيه` : odd ? `؟ الجنسية «${v}» مش متعرفة — اكتبها بالعربي تحت` : `✓ ${k}`;
+      if (!v || odd) li.className = "miss"; ul.appendChild(li);
+    });
     st.appendChild(ul);
     { const li = document.createElement("li"); li.textContent = r.salary ? "✓ الراتب" : "بدون راتب (هيتشال من التصميم)"; ul.appendChild(li); }
     if (items.some(i => !i[1])) { const p = document.createElement("span"); p.textContent = "اللي ناقص اكتبه من «تعديل البيانات يدوي» تحت."; st.appendChild(p); }
