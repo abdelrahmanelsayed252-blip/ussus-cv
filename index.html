@@ -782,13 +782,15 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
     return res;
   }
   async function cutoutServer(srcCanvas) {
-    const [w, h] = modelSize(srcCanvas.width, srcCanvas.height);
-    const jpg = await new Promise(r => resized(srcCanvas, w, h).toBlob(r, "image/jpeg", 0.9));
+    // send the photo at ≤ 1024 px (≈100 KB); the server returns a 1024×1024 matte that we stretch back
+    const k = Math.min(1, 1024 / Math.max(srcCanvas.width, srcCanvas.height));
+    const jpg = await new Promise(r => resized(srcCanvas, Math.round(srcCanvas.width * k), Math.round(srcCanvas.height * k)).toBlob(r, "image/jpeg", 0.92));
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 60000);
     try {
       const r = await fetch("/api/cut", { method: "POST", body: jpg, headers: { "content-type": "image/jpeg" }, signal: ctrl.signal });
       if (!r.ok) throw new Error("server " + r.status);
       const bmp = await createImageBitmap(await r.blob());
+      const w = bmp.width, h = bmp.height;
       const g = document.createElement("canvas"); g.width = w; g.height = h;
       const gx = g.getContext("2d", { willReadFrequently: true }); gx.drawImage(bmp, 0, 0, w, h);
       const d = gx.getImageData(0, 0, w, h).data, a = new Uint8Array(w * h);
@@ -820,7 +822,8 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
       if (SERVER_CUT) {
         try { c = await cutoutServer(src); } catch (e) { console.warn("server cutout failed, trying on the device", e); st.textContent = "بيقص على الجهاز…"; }
       }
-      if (!c) try {
+      // the light on-device model is only for the Claude preview; on the site the backup is the full model below
+      if (!c && !SERVER_CUT) try {
         c = await cutoutFast(src, p => {
           bar.firstElementChild.style.width = Math.max(5, Math.min(95, p * 100)) + "%";
           st.textContent = p < 1 ? `بيجهّز أداة القص… ${Math.round(p * 100)}% (مرة واحدة بس على الجهاز ده)` : "بيقص الصورة…";
