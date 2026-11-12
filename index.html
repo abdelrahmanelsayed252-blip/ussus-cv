@@ -629,8 +629,9 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
   // Where the cut-out model lives. If one host refuses (e.g. GitHub's download limit), try the next.
   const GH_CDN = "https://cdn.jsdelivr.net/gh/abdelrahmanelsayed252-blip/ussus-cv@main/";
   const GH_PAGES = "https://abdelrahmanelsayed252-blip.github.io/ussus-cv/";
+  const GH_RAW = "https://raw.githubusercontent.com/abdelrahmanelsayed252-blip/ussus-cv/main/";
   const BG_SOURCES = ASSET
-    ? [GH_PAGES + "bg/", ASSET + "bg/", GH_CDN + "bg/", "https://staticimgly.com/@imgly/background-removal-data/1.4.5/dist/"]
+    ? [...new Set([GH_PAGES, ASSET, GH_RAW, GH_CDN].map(h => h + "bg/"))].concat("https://staticimgly.com/@imgly/background-removal-data/1.4.5/dist/")
     : [new URL("bg/", location.href).href];
 
   // Keep the model on this device after the first download, so later cut-outs start instantly
@@ -653,7 +654,7 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
       } catch { return net(input, init); }
     };
   }
-  const LIB_SOURCES = ASSET ? [ASSET + "bg/bgremove.js", GH_CDN + "bg/bgremove.js"] : ["bg/bgremove.js"];
+  const LIB_SOURCES = ASSET ? [...new Set([ASSET, GH_PAGES, GH_RAW, GH_CDN])].map(h => h + "bg/bgremove.js") : ["bg/bgremove.js"];
   let bgLib = null;
   function loadBgLib() {
     if (bgLib) return bgLib;
