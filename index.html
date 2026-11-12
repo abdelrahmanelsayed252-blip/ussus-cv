@@ -628,9 +628,31 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
   // ---------- background removal (runs in the browser) ----------
   // Where the cut-out model lives. If one host refuses (e.g. GitHub's download limit), try the next.
   const GH_CDN = "https://cdn.jsdelivr.net/gh/abdelrahmanelsayed252-blip/ussus-cv@main/";
+  const GH_PAGES = "https://abdelrahmanelsayed252-blip.github.io/ussus-cv/";
   const BG_SOURCES = ASSET
-    ? [ASSET + "bg/", GH_CDN + "bg/", "https://staticimgly.com/@imgly/background-removal-data/1.4.5/dist/"]
+    ? [GH_PAGES + "bg/", ASSET + "bg/", GH_CDN + "bg/", "https://staticimgly.com/@imgly/background-removal-data/1.4.5/dist/"]
     : [new URL("bg/", location.href).href];
+
+  // Keep the model on this device after the first download, so later cut-outs start instantly
+  // (whatever host it came from — files are keyed by their content hash).
+  if ("caches" in window && !window.__bgCache) {
+    window.__bgCache = true;
+    const net = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+      const url = typeof input === "string" ? input : (input && input.url) || "";
+      const m = url.match(/\/([0-9a-f]{64})(?:\.wasm)?(?:[?#].*)?$/);
+      if (!m) return net(input, init);
+      const key = "https://bg-model.local/" + m[1];
+      try {
+        const box = await caches.open("bg-model-v1");
+        const hit = await box.match(key);
+        if (hit) return hit;
+        const r = await net(input, init);
+        if (r.ok) box.put(key, r.clone()).catch(() => {});
+        return r;
+      } catch { return net(input, init); }
+    };
+  }
   const LIB_SOURCES = ASSET ? [ASSET + "bg/bgremove.js", GH_CDN + "bg/bgremove.js"] : ["bg/bgremove.js"];
   let bgLib = null;
   function loadBgLib() {
@@ -713,22 +735,27 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
       let out = null, lastErr = null;
       for (const [i, publicPath] of BG_SOURCES.entries()) {
         const parts = {};
+        let lastTick = Date.now(), stallTimer = null;
+        // if a host stops sending for a whole minute, give up on it and try the next one
+        const stalled = new Promise((_, rej) => { stallTimer = setInterval(() => { if (Date.now() - lastTick > 60000) rej(new Error("الاتصال وقف")); }, 3000); });
         try {
-          out = await remove(blob, {
+          out = await Promise.race([stalled, remove(blob, {
             publicPath, model: "medium", device: "cpu", proxyToWorker: false,
             output: { format: "image/png" },
             progress: (key, cur, total) => {
+              lastTick = Date.now();
               parts[key] = total ? cur / total : 0;
               const vals = Object.values(parts); const p = vals.reduce((a, b) => a + b, 0) / Math.max(2, vals.length);
               bar.firstElementChild.style.width = Math.max(5, Math.min(95, p * 100)) + "%";
               if (/compute|inference/.test(key)) st.textContent = "بيقص الصورة…";
+              else if (/fetch/.test(key)) st.textContent = `بيحمّل أداة القص… ${Math.round(Math.min(1, p) * 100)}% (أول مرة بس على الجهاز ده)`;
             }
-          });
+          })]);
           break;
         } catch (e) {
           lastErr = e; console.warn("bg source failed", publicPath, e);
-          if (i < BG_SOURCES.length - 1) st.textContent = "السيرفر الأول مردش، بجرب سيرفر تاني…";
-        }
+          if (i > 0 && i < BG_SOURCES.length - 1) st.textContent = "السيرفر ده مردش، بجرب سيرفر تاني…";
+        } finally { clearInterval(stallTimer); }
       }
       if (!out) throw lastErr || new Error("no source");
       const url = URL.createObjectURL(out);
