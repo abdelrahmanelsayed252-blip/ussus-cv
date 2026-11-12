@@ -922,7 +922,7 @@ details#manual>summary{cursor:pointer;padding:14px 16px;font-weight:700;list-sty
   draw();
   Promise.all([
     loadImg(ASSET + "template.jpg").then(i => template = i).catch(() => {}),
-    loadImg(ASSET + "sample.jpg").then(i => { state.sampleImg = i; if (state.isExample) setPhoto(i); draw(); }).catch(() => {}),
+    loadImg(ASSET + "sample.jpg" + (ASSET.includes("?") ? "&" : "?") + "v=nurti").then(i => { state.sampleImg = i; if (state.isExample) setPhoto(i); draw(); }).catch(() => {}),
     document.fonts.load(`700 30px ${FONT}`, "عربي").then(() => document.fonts.load(`700 30px ${FONT}`, "ABC123")).catch(() => {})
   ]).then(() => { fontsReady = true; draw(); });
   document.fonts.ready.then(draw);
